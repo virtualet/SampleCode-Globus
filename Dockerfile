@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/windows/servercore:${WINDOWS_CONTAINER_VERSION}
 
 # Install Microsoft Build Tools
 SHELL ["cmd", "/S", "/C"]
+RUN choco install curl -y
 RUN \
     curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
     \
