@@ -2,7 +2,6 @@ pipeline {
 
 	agent { 
 		dockerfile true 
-	      	node { label 'win-agent' }
 	      }
 
 	stages {
