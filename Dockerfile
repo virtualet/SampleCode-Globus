@@ -1,5 +1,5 @@
 ARG WINDOWS_CONTAINER_VERSION=ltsc2016
-FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_CONTAINER_VERSION}
+FROM mcr.microsoft.com/windows/servercore:${WINDOWS_CONTAINER_VERSION}
 
 # Install Microsoft Build Tools
 SHELL ["cmd", "/S", "/C"]
