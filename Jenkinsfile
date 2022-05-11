@@ -6,6 +6,9 @@ pipeline {
 	      }
 
 	stages {
-		steps { powershell('build.ps1') }
+		stage ('powershell run')
+		{
+		       steps { powershell('build.ps1') 
+		     	}
+		}	
 	}
-}
