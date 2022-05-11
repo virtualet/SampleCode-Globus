@@ -38,8 +38,6 @@ Write-Output "Installing Docker Desktop..."
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 Install-Module -Name DockerMsftProvider -Force
 Install-Package -Name docker -ProviderName DockerMsftProvider -Force
-# Pulling the 2019 image to save time for later
-docker pull mcr.microsoft.com/windows/servercore:ltsc2019 
 #choco install docker-desktop --version=2.5.0.1
 
 Write-Output "Installing Git ..."
