@@ -9,7 +9,7 @@ pipeline {
 	stages {
 		stage ('powershell run') {
 		       steps { 
-			       powershell('build.ps1') 
+			       powershell( script:'build.ps1' ) 
 			}
 		}
 			
