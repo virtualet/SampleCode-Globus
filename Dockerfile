@@ -18,25 +18,17 @@ ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
 # This will be used to compile LLVM using the vc compiler.
 # Note that Microsoft.VisualStudio.Workload.VCTools  includes CMAKE
 RUN C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
-    --installPath C:\BuildTools `
-    --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.ATLMFC --includeRecommended `
-    || IF "%ERRORLEVEL%"=="3010" EXIT 0
-
+	--installPath C:\BuildTools `
+     	--add "Microsoft.VisualStudio.Workload.VCTools" --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" --add "Microsoft.VisualStudio.Component.VC.ATLMFC" --add "Microsoft.VisualStudio.Component.Windows10SDK.20348"
+     	--includeRecommended `
+    	|| IF "%ERRORLEVEL%"=="3010" EXIT 0
+    
 # Install Python needed for lit testing	
 RUN powershell.exe -Command `
     $ErrorActionPreference = 'Stop'; `
     wget https://www.python.org/ftp/python/3.7.0/python-3.7.0-amd64.exe -OutFile c:\python-3.7.0.exe ; `
     Start-Process c:\python-3.7.0.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait ; `
     Remove-Item c:\python-3.7.0.exe -Force
-	
-# Download Ninja to use as our build system for speedier builds. (It's bettern than MSVC. Trust me)
-RUN mkdir C:\Ninja
-
-RUN powershell.exe -Command `
-    $ErrorActionPreference = 'Stop'; `
-    wget https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip -OutFile C:\Ninja\Ninja.zip ; `
-    Expand-Archive C:\Ninja\Ninja.zip C:\Ninja ; `
-    Remove-Item  C:\Ninja\Ninja.zip -Force
 
 # Install GNuWin32 tools via Chocolatey for Lit testing
 RUN powershell -Command `
@@ -44,6 +36,7 @@ RUN powershell -Command `
 
 RUN choco install -y gnuwin32-coreutils.install
 RUN choco install -y gnuwin
+RUN choco install -y ninja
 
 RUN setx path "%path%;C:\Ninja\;C:\Program Files (x86)\GnuWin32\bin"
 
