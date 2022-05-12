@@ -9,4 +9,8 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 RUN Set-ExecutionPolicy Bypass -Scope Process -Force;[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'; 
 
+RUN choco install -y ninja
+
 RUN choco install -y cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"'
+
+RUN choco choco install -y llvm
