@@ -1,24 +1,52 @@
-ARG WINDOWS_CONTAINER_VERSION=ltsc2016
-FROM mcr.microsoft.com/windows/servercore:${WINDOWS_CONTAINER_VERSION}
+# escape=`
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2016
 
-# Install Microsoft Build Tools
+# Setup admin user for certain LLVM build processes (Writing to pdb for example)
+RUN net user /add llvm-admin
+RUN net localgroup Administrators llvm-admin /add
+USER llvm-admin
+
+# Setup the shell.
 SHELL ["cmd", "/S", "/C"]
 
-# Install Chocolatey
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+# The following steps are modified from 
+# https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2019&viewFallbackFrom=vs-2019
+# Download the Build Tools bootstrapper.
+ADD https://aka.ms/vs/16/release/vs_buildtools.exe C:\TEMP\vs_buildtools.exe
 
-RUN Set-ExecutionPolicy Bypass -Scope Process -Force;[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'; iex ((New-Object System.Net.WebClient).DownloadString('"https://chocolatey.org/install.ps1"'));
+# Download and install Build Tools for Visual Studio 2019 for native desktop workload.
+# This will be used to compile LLVM using the vc compiler.
+# Note that Microsoft.VisualStudio.Workload.VCTools  includes CMAKE
+RUN C:\TEMP\vs_buildtools.exe --quiet --wait --norestart --nocache `
+    --installPath C:\BuildTools `
+    --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.ATLMFC --includeRecommended `
+    || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
-RUN choco install -y curl
+# Install Python needed for lit testing	
+RUN powershell.exe -Command `
+    $ErrorActionPreference = 'Stop'; `
+    wget https://www.python.org/ftp/python/3.7.0/python-3.7.0-amd64.exe -OutFile c:\python-3.7.0.exe ; `
+    Start-Process c:\python-3.7.0.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait ; `
+    Remove-Item c:\python-3.7.0.exe -Force
+	
+# Download Ninja to use as our build system for speedier builds. (It's bettern than MSVC. Trust me)
+RUN mkdir C:\Ninja
 
-RUN choco install -y ninja
+RUN powershell.exe -Command `
+    $ErrorActionPreference = 'Stop'; `
+    wget https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip -OutFile C:\Ninja\Ninja.zip ; `
+    Expand-Archive C:\Ninja\Ninja.zip C:\Ninja ; `
+    Remove-Item  C:\Ninja\Ninja.zip -Force
 
-RUN choco install -y cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"'
+# Install GNuWin32 tools via Chocolatey for Lit testing
+RUN powershell -Command `
+	iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-SHELL ["cmd", "/S", "/C"]
-RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe 
-RUN start /w vs_buildtools.exe --quiet --wait --norestart --nocache --add "Microsoft.VisualStudio.Workload.VCTools" --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" --add "Microsoft.VisualStudio.Component.VC.ATLMFC" --add "Microsoft.VisualStudio.Component.Windows10SDK.20348"
-RUN del /q vs_buildtools.exe
+RUN choco install -y gnuwin32-coreutils.install
+RUN choco install -y gnuwin
 
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-RUN choco install -y llvm
+RUN setx path "%path%;C:\Ninja\;C:\Program Files (x86)\GnuWin32\bin"
+
+# This entry point starts the VS developer command prompt and launches the PowerShell shell.
+# We must ensure the architecture is set to 64 bit so the correct linker is used when building the LLVM libraries (We intend to use the 64 bit compiled Libaraies)
+ENTRYPOINT ["C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat", "-host_arch=amd64", "-arch=amd64", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
