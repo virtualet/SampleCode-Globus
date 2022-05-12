@@ -10,7 +10,7 @@ pipeline {
 	
 	stages {
 		stage ('powershell run') {
-			step ('MyWindowsSlave') {
+			steps ('MyWindowsSlave') {
      				PowerShell(". '.\\build.ps1'")
 			}
 		}
