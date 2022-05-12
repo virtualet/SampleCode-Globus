@@ -1,4 +1,8 @@
 pipeline {
+	def PowerShell(psCmd) {
+		psCmd=psCmd.replaceAll("%", "%%")
+    		bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"\$ErrorActionPreference='Stop';[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$psCmd;EXIT \$global:LastExitCode\""
+	}
 
 	agent { 
 		dockerfile {
@@ -9,7 +13,7 @@ pipeline {
 	stages {
 		stage ('powershell run') {
 		       steps { 
-			       powershell( script:'build.ps1' ) 
+			       PowerShell(". '.\\build.ps1'")
 			}
 		}
 			
