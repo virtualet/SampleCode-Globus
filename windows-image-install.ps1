@@ -40,8 +40,34 @@ Install-Module -Name DockerMsftProvider -Force
 Install-Package -Name docker -ProviderName DockerMsftProvider -Force
 #choco install docker-desktop --version=2.5.0.1
 
-Write-Output "Installing Git ..."
+Write-Output "Installing Git..."
 choco install -y git
+
+Write-Output "Installing Curl..."
+choco install -y curl
+
+curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
+    \
+    && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
+    --add "Microsoft.VisualStudio.Workload.VCTools" \
+    --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" \
+    --add "Microsoft.VisualStudio.Component.VC.ATLMFC" \
+    --add "Microsoft.VisualStudio.Component.Windows10SDK.20348" \
+    || IF "%ERRORLEVEL%"=="3010" EXIT 0) \
+    \
+    # Cleanup
+    && del /q vs_buildtools.exe
+
+Write-Output "Installing ninja..."
+choco install -y ninja
+
+Write-Output "Installing cmake..."
+choco install -y cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"'
+
+Write-Output "Installing llvm..."
+choco install -y llvm
+
+
 
 # No need to add a user if you've already configured one.
 Write-Output "Adding build user..."
