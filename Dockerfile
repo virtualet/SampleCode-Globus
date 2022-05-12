@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/windows/servercore:${WINDOWS_CONTAINER_VERSION}
 # Install Microsoft Build Tools
 SHELL ["cmd", "/S", "/C"]
 
-ADD https://aka.ms/vs/16/release/vs_buildtools.exe 
+ADD https://aka.ms/vs/16/release/vs_buildtools.exe .
 RUN vs_buildtools.exe --quiet --wait --norestart --nocache \
      	--add "Microsoft.VisualStudio.Workload.VCTools" --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" --add "Microsoft.VisualStudio.Component.VC.ATLMFC" --add "Microsoft.VisualStudio.Component.Windows10SDK.20348" \
      	--includeRecommended \
