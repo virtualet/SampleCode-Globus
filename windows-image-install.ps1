@@ -43,9 +43,6 @@ Install-Package -Name docker -ProviderName DockerMsftProvider -Force
 Write-Output "Installing Git ..."
 choco install -y git
 
-Write-Output "Installing Curl ..."
-choco install -y curl
-
 # No need to add a user if you've already configured one.
 Write-Output "Adding build user..."
 $username = "jenkins"
