@@ -12,7 +12,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force;[System.Net.ServicePointMan
 # Install build tools:
 RUN choco install curl -y
 
-RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe; if ($?) (start /w vs_buildtools.exe --wait --norestart --nocache --add "Microsoft.VisualStudio.Workload.VCTools" --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" --add "Microsoft.VisualStudio.Component.VC.ATLMFC" --add "Microsoft.VisualStudio.Component.Windows10SDK.20348" ); if ($?) del /q vs_buildtools.exe
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe; if ($?) start /w vs_buildtools.exe --wait --norestart --nocache --add "Microsoft.VisualStudio.Workload.VCTools" --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" --add "Microsoft.VisualStudio.Component.VC.ATLMFC" --add "Microsoft.VisualStudio.Component.Windows10SDK.20348"; if ($?) del /q vs_buildtools.exe
 
 RUN choco install ninja -y
 RUN choco install cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"' -y
