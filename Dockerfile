@@ -13,4 +13,4 @@ RUN choco install -y ninja
 
 RUN choco install -y cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"'
 
-RUN choco choco install -y llvm
+RUN choco install -y llvm
