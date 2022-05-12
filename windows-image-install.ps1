@@ -17,7 +17,6 @@ Write-Output "Setting execution policy for PowerShell scripts...";
 Set-ExecutionPolicy Bypass -Scope Process -Force;
 
 Write-Output "Installing Chocolatey...";
-[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'));
 
 Write-Output "Refreshing environment...";
@@ -33,14 +32,7 @@ exit 1
 Write-Output "Installing Java 8..."
 choco install -y jre8
 
-Write-Output "Installing Docker Desktop..."
-# Installing Docker via powershell due to bugs with Choco install
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Install-Module -Name DockerMsftProvider -Force
-Install-Package -Name docker -ProviderName DockerMsftProvider -Force
-#choco install docker-desktop --version=2.5.0.1
-
-Write-Output "Installing Git ..."
+Write-Output "Installing Git..."
 choco install -y git
 
 # No need to add a user if you've already configured one.
@@ -59,7 +51,7 @@ Start-Process cmd /c -WindowStyle Hidden -Credential $cred -ErrorAction Silently
 
 # You will need to insert your own public key here.
 Write-Output "Creating key file and writing public key to file"
-$ConfiguredPublicKey = "admin_:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8VSHBJaZzShovwu7HpYeiDV0UmSBaNYAuUxWkhE3cLYX//Ngb0l0vOP1hzIgoBwC6Zyo0VqIEwwM4F8qapKkEyFdCVMNcv/68QpM2/8LrVTUuQpaNdAHG1Zi++qQLs21b/5L7XgbTubShu9Qc8G0Lb45A8uBnrFHxjDq3mzEWh+zWEV9XSypMO6C8o1Q8QMxN6CZ4cchQ+uTmaP54YijpY3ucGyqOsHJEKgLhEL0tmwtEqXA2QdCsWtIyPoOV7RsLSkdOb5Tsvx5Cvfyzgb+QUGfnqkbv9t6ZKoYFQh9qxPSsNzI3Lz9OWGB7dRmq/gXAAwW3AGVhPVVryMil9SgN argolis cloud shell admin user"
+$ConfiguredPublicKey = "<YOUR PUBLIC KEY HERE. WILL START WITH ssh-rsa>"
 
 # Fix up permissions on authorized_keys.
 Set-Content -Path $env:PROGRAMDATA\ssh\administrators_authorized_keys -Value $ConfiguredPublicKey
