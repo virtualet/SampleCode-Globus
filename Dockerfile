@@ -10,8 +10,7 @@ RUN \
     --add "Microsoft.VisualStudio.Workload.VCTools" \
     --add "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" \
     --add "Microsoft.VisualStudio.Component.VC.ATLMFC" \
-    --add "Microsoft.VisualStudio.Component.Windows10SDK.20348" \
-    || IF "%ERRORLEVEL%"=="3010" EXIT 0)
+    --add "Microsoft.VisualStudio.Component.Windows10SDK.20348")
 
 # Install Chocolatey
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
