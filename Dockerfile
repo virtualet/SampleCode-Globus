@@ -1,6 +1,17 @@
 ARG WINDOWS_CONTAINER_VERSION=ltsc2019
 FROM mcr.microsoft.com/windows/servercore:${WINDOWS_CONTAINER_VERSION}
 
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'; \
+    iex ((New-Object System.Net.WebClient).DownloadString('"https://chocolatey.org/install.ps1"'));
+
+# Install build tools:
+RUN choco install ninja -y
+RUN choco install cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"' -y
+RUN choco install llvm -y
+
 # Install Microsoft Build Tools
 SHELL ["cmd", "/S", "/C"]
 RUN \
@@ -13,13 +24,4 @@ RUN \
     --add "Microsoft.VisualStudio.Component.Windows10SDK.20348")
 
 # Install Chocolatey
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'; \
-    iex ((New-Object System.Net.WebClient).DownloadString('"https://chocolatey.org/install.ps1"'));
-
-# Install build tools:
-RUN choco install ninja -y
-RUN choco install cmake.install --installargs '"ADD_CMAKE_TO_PATH=System"' -y
-RUN choco install llvm -y
